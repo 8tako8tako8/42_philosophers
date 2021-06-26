@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <sys/time.h>
+
+#define SUCCESS 0
+#define FAILURE 1
 
 #define VALID 1
 #define INVALID -1
@@ -9,8 +13,17 @@ typedef struct s_info
 	int			time_to_die;
 	int			time_to_eat;
 	int			time_to_sleep;
-	int			num_of_eating;
+	int			num_of_each_eating;
+	long		time_start;
 }				t_info;
+
+typedef struct s_philo
+{
+	int			id;
+	int			count_eat;
+	int			time_last_eat;
+	t_info		*info;
+}				t_philo;
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
@@ -69,7 +82,7 @@ int check_arguments(int argc, char **argv)
 
 	if (argc != 5 && argc != 6)
 		return (INVALID);
-	i = 0;
+	i = 1;
 	while (argv[i])
 	{
 		if (!is_number(argv[i]))
@@ -80,8 +93,6 @@ int check_arguments(int argc, char **argv)
 	}
 	return (VALID);
 }
-
-
 
 int	ft_atoi(const char *str)
 {
@@ -99,6 +110,17 @@ int	ft_atoi(const char *str)
 	return (number);
 }
 
+long	get_time_in_ms(void)
+{
+	struct timeval	tv;
+	time_t			time_ms;
+
+	if (gettimeofday(&tv, NULL) < 0)
+		return (-1);
+	time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	return (time_ms);	
+}
+
 void	init_info(t_info *info, int argc, char **argv)
 {
 	info->num_of_philo = ft_atoi(argv[1]);
@@ -106,20 +128,10 @@ void	init_info(t_info *info, int argc, char **argv)
 	info->time_to_eat = ft_atoi(argv[3]);
 	info->time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 5)
-		info->num_of_eating = -1;
+		info->num_of_each_eating = -1;
 	if (argc == 6)
-		info->num_of_eating = ft_atoi(argv[5]);
-}
-
-
-
-void	print_info(t_info *info)
-{
-	printf("1: %d", info->num_of_philo);
-	printf("2: %d", info->time_to_die);
-	printf("3: %d", info->time_to_eat);
-	printf("4: %d", info->time_to_sleep);
-	printf("5: %d", info->num_of_eating);
+		info->num_of_each_eating = ft_atoi(argv[5]);
+	info->time_start = get_time_in_ms();
 }
 
 int	main(int argc, char **argv)
@@ -127,7 +139,20 @@ int	main(int argc, char **argv)
 	t_info	info;
 
 	if (check_arguments(argc, argv) == -1)
+	{
 		printf("Invalid argument\n");
+		return (1);
+	}
 	init_info(&info, argc, argv);
 	print_info(&info);
 }
+
+/* void	print_info(t_info *info)
+{
+	printf("1: %d\n", info->num_of_philo);
+	printf("2: %d\n", info->time_to_die);
+	printf("3: %d\n", info->time_to_eat);
+	printf("4: %d\n", info->time_to_sleep);
+	printf("5: %d\n", info->num_of_each_eating);
+	printf("6: %ld\n", info->time_start);
+} */
