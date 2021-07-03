@@ -22,11 +22,11 @@ int	init_global_variables(t_info *info)
 	g_flag_fin = FALSE;
 	pthread_mutex_init(&g_print, NULL);
 	pthread_mutex_init(&g_die, NULL);
-	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * (info->num_of_philos + 1));
+	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * (info->num_of_philos));
 	if (!g_fork)
 		return (ERROR);
-	i = 1;
-	while (i <= (info->num_of_philos))
+	i = 0;
+	while (i < (info->num_of_philos))
 	{
 		pthread_mutex_init(&g_fork[i], NULL);
 		i++;
@@ -40,23 +40,23 @@ t_philo	*init_philo(t_info *info)
 	long	time_start;
 	int		i;
 
-	philo = (t_philo *)malloc(sizeof(t_philo) * (info->num_of_philos + 1));
+	philo = (t_philo *)malloc(sizeof(t_philo) * (info->num_of_philos));
 	if (!philo)
 		return (NULL);
 	time_start = get_time_in_ms();
 	if (time_start == ERROR)
 		return (NULL);
 	i = 0;
-	while (i <= (info->num_of_philos))
+	while (i < (info->num_of_philos))
 	{
-		philo[i].id = i;
+		philo[i].id = i + 1;
 		philo[i].count_eat = 0;
 		philo[i].flag_eat_fin = FALSE;
 		philo[i].flag_fin = FALSE;
 		philo[i].time_last_eat = time_start;
 		philo[i].right_fork = i;
-		if (i == info->num_of_philos)
-			philo[i].left_fork = 1;
+		if (i == info->num_of_philos - 1)
+			philo[i].left_fork = 0;
 		else
 			philo[i].left_fork = i + 1;
 		philo[i].info = info;

@@ -1,6 +1,6 @@
 #include "philo.h"
 
-void	*watcher(void *arg)
+void	*death_watcher(void *arg)
 {
 	t_philo	*philo;
 	long	time_now;

@@ -82,7 +82,7 @@ int			spend_sleeping(t_info *info, t_philo *philo);
 void		think_deeply(t_philo *philo);
 
 /* watcher.c */
-void		*watcher(void *arg);
+void		*death_watcher(void *arg);
 
 /* utils.c */
 int 		check_arguments(int argc, char **argv);

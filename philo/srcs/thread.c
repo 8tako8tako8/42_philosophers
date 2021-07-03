@@ -4,17 +4,17 @@ int	create_threads(t_info *info, t_philo *philos)
 {
 	int	i;
 
-	i = 1;
-	while (i <= (info->num_of_philos))
+	i = 0;
+	while (i < (info->num_of_philos))
 	{
 		if (pthread_create(&(philos[i].thread), NULL, &philo_life, (void *)&(philos[i])) != 0)
 			return (ERROR);
 		i++;
 	}
-	i = 1;
-	while (i <= (info->num_of_philos))
+	i = 0;
+	while (i < (info->num_of_philos))
 	{
-		if (pthread_create(&(philos[i].watcher), NULL, &watcher, (void *)&(philos[i])) != 0)
+		if (pthread_create(&(philos[i].watcher), NULL, &death_watcher, (void *)&(philos[i])) != 0)
 			return (ERROR);
 		i++;
 	}
@@ -25,14 +25,14 @@ void	join_threads(t_info *info, t_philo *philos)
 {
 	int	i;
 
-	i = 1;
-	while (i <= (info->num_of_philos))
+	i = 0;
+	while (i < (info->num_of_philos))
 	{
 		pthread_join(philos[i].thread, NULL);
 		i++;
 	}
-	i = 1;
-	while (i <= (info->num_of_philos))
+	i = 0;
+	while (i < (info->num_of_philos))
 	{
 		pthread_join(philos[i].watcher, NULL);
 		i++;

@@ -3,15 +3,14 @@
 pthread_mutex_t	*g_fork;
 pthread_mutex_t	g_print;//いらないかも
 pthread_mutex_t	g_die;
-pthread_t		g_watcher;
 int				g_flag_fin;
 
 static void	clean_mutex(t_info *info)
 {
 	int	i;
 
-	i = 1;
-	while (i <= (info->num_of_philos))
+	i = 0;
+	while (i < (info->num_of_philos))
 	{
 		pthread_mutex_destroy(&g_fork[i]);
 		i++;
