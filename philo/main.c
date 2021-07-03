@@ -29,9 +29,7 @@ typedef struct s_philo
 {
 	int			id;
 	int			count_eat;
-	long		time_start;//いらない？
 	long		time_last_eat;
-	long		time_passed;//いらない？
 	int			right_fork;
 	int			left_fork;
 	pthread_t	thread;
@@ -207,9 +205,9 @@ t_philo	*init_philo(t_info *info)
 	{
 		philo[i].id = i;
 		philo[i].count_eat = 0;
-		philo[i].time_start = time_start;
+		// philo[i].time_start = time_start;
 		philo[i].time_last_eat = time_start;
-		philo[i].time_passed = 0;
+		// philo[i].time_passed = 0;
 		philo[i].right_fork = i;
 		if (i == info->num_of_philos)
 			philo[i].left_fork = 1;
@@ -332,14 +330,27 @@ void	print_philo(t_philo *philo, t_info *info)
 	{
 		printf("1: %d\n", philo[i].id);
 		printf("2: %d\n", philo[i].count_eat);
-		printf("3: %ld\n", philo[i].time_start);
+		// printf("3: %ld\n", philo[i].time_start);
 		printf("4: %ld\n", philo[i].time_last_eat);
-		printf("5: %ld\n", philo[i].time_passed);
+		// printf("5: %ld\n", philo[i].time_passed);
 		printf("6: %d\n", philo[i].right_fork);
 		printf("7: %d\n", philo[i].left_fork);
 		printf("8: %p\n", philo[i].info);
 		i++;
 	}
+}
+
+void	clean_mutex(t_info *info)
+{
+	int	i;
+
+	i = 1;
+	while (i <= (info->num_of_philos))
+	{
+		pthread_mutex_destroy(&g_fork[i]);
+		i++;
+	}
+	free(g_fork);
 }
 
 int	main(int argc, char **argv)
@@ -360,6 +371,8 @@ int	main(int argc, char **argv)
 	if (create_threads(&info, philos) == ERROR)
 		return (print_error_message("system call fail\n"));
 	join_threads(&info, philos);
+	clean_mutex(&info);
+	return (0);
 }
 
 /* void	print_info(t_info *info)
