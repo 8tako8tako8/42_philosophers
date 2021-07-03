@@ -40,7 +40,18 @@ typedef struct s_philo
 
 pthread_mutex_t *g_fork;
 
-long	print_status(t_philo *philo, int status)
+long	get_time_in_ms(void)
+{
+	struct timeval	tv;
+	time_t			time_ms;
+
+	if (gettimeofday(&tv, NULL) < 0)
+		return (ERROR);
+	time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	return (time_ms);
+}
+
+void	print_status(t_philo *philo, int status)
 {
 	long	ms_time;
 
@@ -55,7 +66,6 @@ long	print_status(t_philo *philo, int status)
 		printf("%ld %d is thinking\n", ms_time, philo->id);
 	else if (status == DIE)
 		printf("%ld %d died\n", ms_time, philo->id);
-	return (ms_time);
 }
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
@@ -143,17 +153,6 @@ int	ft_atoi(const char *str)
 	return (number);
 }
 
-long	get_time_in_ms(void)
-{
-	struct timeval	tv;
-	time_t			time_ms;
-
-	if (gettimeofday(&tv, NULL) < 0)
-		return (ERROR);
-	time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-	return (time_ms);
-}
-
 int	init_info(t_info *info, int argc, char **argv)
 {
 	info->num_of_philos = ft_atoi(argv[1]);
@@ -171,9 +170,17 @@ int	init_info(t_info *info, int argc, char **argv)
 
 int	init_global_variables(t_info *info)
 {
+	int		i;
+
 	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * (info->num_of_philos + 1));
 	if (!g_fork)
 		return (ERROR);
+	i = 1;
+	while (i <= (info->num_of_philos))
+	{
+		pthread_mutex_init(&g_fork[i], NULL);
+		i++;
+	}
 	return (SUCCESS);
 }
 
@@ -201,7 +208,7 @@ t_philo	*init_philo(t_info *info)
 		philo[i].id = i;
 		philo[i].count_eat = 0;
 		philo[i].time_start = time_start;
-		philo[i].time_last_eat = 0;
+		philo[i].time_last_eat = time_start;
 		philo[i].time_passed = 0;
 		philo[i].right_fork = i;
 		if (i == info->num_of_philos)
@@ -222,6 +229,58 @@ void	take_forks(t_philo *philo)
 	print_status(philo, FORK);
 }
 
+void	drop_forks(t_philo *philo)
+{
+	pthread_mutex_unlock(&g_fork[philo->right_fork]);
+	pthread_mutex_unlock(&g_fork[philo->left_fork]);
+}
+
+void	eat_spaghetti(t_info *info, t_philo *philo)
+{
+	long	time_now;
+	long	tmp;
+
+	print_status(philo, EAT);
+	tmp = get_time_in_ms();
+	if (tmp == ERROR)
+		return ;
+	while (1)
+	{
+		time_now = get_time_in_ms();
+		if (time_now == ERROR)
+			return ;
+		if ((time_now - tmp) >= info->time_to_eat)
+			break ;
+		usleep(100);
+	}
+	philo->time_last_eat = time_now;
+}
+
+void	spend_sleeping(t_info *info, t_philo *philo)
+{
+	long	time_now;
+	long	tmp;
+
+	print_status(philo, SLEEP);
+	tmp = get_time_in_ms();
+	if (tmp == ERROR)
+		return ;
+	while (1)
+	{
+		time_now = get_time_in_ms();
+		if (time_now == ERROR)
+			return ;
+		if ((time_now - tmp) >= info->time_to_sleep)
+			break ;
+		usleep(100);
+	}
+}
+
+void	think_deeply(t_philo *philo)
+{
+	print_status(philo, THINK);
+}
+
 void	*philo_life(void *arg)
 {
 	t_philo	*philo;
@@ -232,8 +291,10 @@ void	*philo_life(void *arg)
 	while (1)
 	{
 		take_forks(philo);
-		//eat_spaghetti();
-		//spend_sleeping();
+		eat_spaghetti(philo->info, philo);
+		drop_forks(philo);
+		spend_sleeping(philo->info, philo);
+		think_deeply(philo);
 	}
 }
 
@@ -263,35 +324,6 @@ void	join_threads(t_info *info, t_philo *philos)
 	}
 }
 
-int	main(int argc, char **argv)
-{
-	t_info	info;
-	t_philo	*philos;
-
-	if (check_arguments(argc, argv) == ERROR)
-		return (print_error_message("invalid argument"));
-	if (init_info(&info, argc, argv) == ERROR)
-		return (print_error_message("only one philosoher"));
-	if (init_global_variables(&info) == ERROR)
-		return (print_error_message("system call fail"));
-	philos = init_philo(&info);
-	if (!philos)
-		return (print_error_message("system call fail\n"));
-/* 	if (create_threads(&info, philos) == ERROR)
-		return (print_error_message("system call fail\n"));
-	join_threads(&info, philos); */
-}
-
-/* void	print_info(t_info *info)
-{
-	printf("1: %d\n", info->num_of_philos);
-	printf("2: %d\n", info->time_to_die);
-	printf("3: %d\n", info->time_to_eat);
-	printf("4: %d\n", info->time_to_sleep);
-	printf("5: %d\n", info->num_of_each_eating);
-	printf("6: %p\n", info);
-}
-
 void	print_philo(t_philo *philo, t_info *info)
 {
 	int	i = 0;
@@ -308,4 +340,34 @@ void	print_philo(t_philo *philo, t_info *info)
 		printf("8: %p\n", philo[i].info);
 		i++;
 	}
+}
+
+int	main(int argc, char **argv)
+{
+	t_info	info;
+	t_philo	*philos;
+
+	if (check_arguments(argc, argv) == ERROR)
+		return (print_error_message("invalid argument"));
+	if (init_info(&info, argc, argv) == ERROR)
+		return (print_error_message("only one philosoher"));
+	if (init_global_variables(&info) == ERROR)
+		return (print_error_message("system call fail"));
+	philos = init_philo(&info);
+	if (!philos)
+		return (print_error_message("system call fail\n"));
+	//print_philo(philos, &info);
+	if (create_threads(&info, philos) == ERROR)
+		return (print_error_message("system call fail\n"));
+	join_threads(&info, philos);
+}
+
+/* void	print_info(t_info *info)
+{
+	printf("1: %d\n", info->num_of_philos);
+	printf("2: %d\n", info->time_to_die);
+	printf("3: %d\n", info->time_to_eat);
+	printf("4: %d\n", info->time_to_sleep);
+	printf("5: %d\n", info->num_of_each_eating);
+	printf("6: %p\n", info);
 } */
