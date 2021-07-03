@@ -16,6 +16,16 @@
 #define THINK 3
 #define DIE 4
 
+#define TRUE 1
+#define FALSE 0
+
+#define INVALID_ARGUMENT "invalid argument"
+#define ONLY_ONE_PHILO "only one philosoher"
+#define MALLOC_FAILED "malloc failed"
+#define GETTIMEOFDAY_FAILED "gettimeofday failed"
+#define MALLOC_OR_GETTIMEOFDAY_FAILED "malloc or gettimeofday failed"
+#define PTHREAD_CREATE_FAILED "pthread create failed"
+
 typedef struct s_info
 {
 	int			num_of_philos;
@@ -29,14 +39,21 @@ typedef struct s_philo
 {
 	int			id;
 	int			count_eat;
+	int			flag_eat_fin;
+	int			flag_fin;
 	long		time_last_eat;
 	int			right_fork;
 	int			left_fork;
 	pthread_t	thread;
+	pthread_t	watcher;
 	t_info		*info;
 }				t_philo;
 
-pthread_mutex_t *g_fork;
+pthread_mutex_t	*g_fork;
+pthread_mutex_t	g_print;//いらないかも
+pthread_mutex_t	g_die;
+pthread_t		g_watcher;
+int				g_flag_fin;
 
 long	get_time_in_ms(void)
 {
@@ -49,11 +66,42 @@ long	get_time_in_ms(void)
 	return (time_ms);
 }
 
+size_t	ft_strlen(const char *s)
+{
+	size_t		i;
+
+	i = 0;
+	while (s[i] != '\0')
+		i++;
+	return (i);
+}
+
+void	ft_putstr_fd(char *s, int fd)
+{
+	if (s)
+		write(fd, s, ft_strlen(s));
+}
+
+void	ft_putendl_fd(char *s, int fd)
+{
+	ft_putstr_fd(s, fd);
+	ft_putstr_fd("\n", fd);
+}
+
+int	print_error_message(char *str)
+{
+	ft_putendl_fd(str, STDERR_FILENO);
+	return (STATUS_ERROR);
+}
+
 void	print_status(t_philo *philo, int status)
 {
 	long	ms_time;
 
+	pthread_mutex_lock(&g_print);
 	ms_time = get_time_in_ms();
+	if (philo->flag_eat_fin || philo->flag_fin)
+		return ;
 	if (status == FORK)
 		printf("%ld %d has taken a fork\n", ms_time, philo->id);
 	else if (status == EAT)
@@ -64,6 +112,7 @@ void	print_status(t_philo *philo, int status)
 		printf("%ld %d is thinking\n", ms_time, philo->id);
 	else if (status == DIE)
 		printf("%ld %d died\n", ms_time, philo->id);
+	pthread_mutex_unlock(&g_print);
 }
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
@@ -170,6 +219,9 @@ int	init_global_variables(t_info *info)
 {
 	int		i;
 
+	g_flag_fin = FALSE;
+	pthread_mutex_init(&g_print, NULL);
+	pthread_mutex_init(&g_die, NULL);
 	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * (info->num_of_philos + 1));
 	if (!g_fork)
 		return (ERROR);
@@ -180,12 +232,6 @@ int	init_global_variables(t_info *info)
 		i++;
 	}
 	return (SUCCESS);
-}
-
-int	print_error_message(char *str)
-{
-	printf("%s\n", str);
-	return (STATUS_ERROR);
 }
 
 t_philo	*init_philo(t_info *info)
@@ -205,9 +251,9 @@ t_philo	*init_philo(t_info *info)
 	{
 		philo[i].id = i;
 		philo[i].count_eat = 0;
-		// philo[i].time_start = time_start;
+		philo[i].flag_eat_fin = FALSE;
+		philo[i].flag_fin = FALSE;
 		philo[i].time_last_eat = time_start;
-		// philo[i].time_passed = 0;
 		philo[i].right_fork = i;
 		if (i == info->num_of_philos)
 			philo[i].left_fork = 1;
@@ -233,28 +279,30 @@ void	drop_forks(t_philo *philo)
 	pthread_mutex_unlock(&g_fork[philo->left_fork]);
 }
 
-void	eat_spaghetti(t_info *info, t_philo *philo)
+int	eat_spaghetti(t_info *info, t_philo *philo)
 {
 	long	time_now;
 	long	tmp;
 
 	print_status(philo, EAT);
+	philo->count_eat++;
 	tmp = get_time_in_ms();
 	if (tmp == ERROR)
-		return ;
+		return (ERROR);
 	while (1)
 	{
 		time_now = get_time_in_ms();
 		if (time_now == ERROR)
-			return ;
+			return (ERROR);
 		if ((time_now - tmp) >= info->time_to_eat)
 			break ;
 		usleep(100);
 	}
 	philo->time_last_eat = time_now;
+	return (SUCCESS);
 }
 
-void	spend_sleeping(t_info *info, t_philo *philo)
+int	spend_sleeping(t_info *info, t_philo *philo)
 {
 	long	time_now;
 	long	tmp;
@@ -262,21 +310,27 @@ void	spend_sleeping(t_info *info, t_philo *philo)
 	print_status(philo, SLEEP);
 	tmp = get_time_in_ms();
 	if (tmp == ERROR)
-		return ;
+		return (ERROR);
 	while (1)
 	{
 		time_now = get_time_in_ms();
 		if (time_now == ERROR)
-			return ;
+			return (ERROR);
 		if ((time_now - tmp) >= info->time_to_sleep)
 			break ;
 		usleep(100);
 	}
+	return (SUCCESS);
 }
 
 void	think_deeply(t_philo *philo)
 {
 	print_status(philo, THINK);
+}
+
+int		does_satisfy_count_eat(t_info *info, t_philo *philo)
+{
+	return philo->count_eat == info->num_of_each_eating;
 }
 
 void	*philo_life(void *arg)
@@ -286,14 +340,105 @@ void	*philo_life(void *arg)
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 1)
 		usleep(200);
-	while (1)
+	while (!philo->flag_fin && !philo->flag_eat_fin)
 	{
+		// printf("1: id=%d\n", philo->id);
+		if (philo->id == 1)
+			write(1, "#1\n", 3);
+		else
+			write(1, "$1\n", 3);
 		take_forks(philo);
-		eat_spaghetti(philo->info, philo);
+		// printf("2: id=%d\n", philo->id);
+		if (philo->id == 1)
+			write(1, "#2\n", 3);
+		else
+			write(1, "$2\n", 3);
+		if (eat_spaghetti(philo->info, philo) == ERROR)
+		{
+			print_error_message(GETTIMEOFDAY_FAILED);
+			break ;
+		}
+		if (philo->info->num_of_each_eating && does_satisfy_count_eat(philo->info, philo))
+			philo->flag_eat_fin = TRUE;
 		drop_forks(philo);
-		spend_sleeping(philo->info, philo);
+		// printf("3: id=%d\n", philo->id);
+		if (philo->id == 1)
+			write(1, "#3\n", 3);
+		else
+			write(1, "$3\n", 3);
+		if (spend_sleeping(philo->info, philo) == ERROR)
+		{
+			print_error_message(GETTIMEOFDAY_FAILED);
+			break ;
+		}
+		// printf("4: id=%d\n", philo->id);
+		if (philo->id == 1)
+			write(1, "#4\n", 3);
+		else
+			write(1, "$4\n", 3);
 		think_deeply(philo);
 	}
+	return (NULL);
+}
+
+// void	*philo_life(void *arg)
+// {
+// 	t_philo	*philo;
+
+// 	philo = (t_philo *)arg;
+// 	if (philo->id % 2 == 1)
+// 		usleep(200);
+// 	while (!philo->flag_fin && !philo->flag_eat_fin)
+// 	{
+// 		take_forks(philo);
+// 		if (eat_spaghetti(philo->info, philo) == ERROR)
+// 		{
+// 			print_error_message(GETTIMEOFDAY_FAILED);
+// 			break ;
+// 		}
+// 		if (philo->info->num_of_each_eating && does_satisfy_count_eat(philo->info, philo))
+// 			philo->flag_eat_fin = TRUE;
+// 		drop_forks(philo);
+// 		if (spend_sleeping(philo->info, philo) == ERROR)
+// 		{
+// 			print_error_message(GETTIMEOFDAY_FAILED);
+// 			break ;
+// 		}
+// 		think_deeply(philo);
+// 	}
+// 	return (NULL);
+// }
+
+void	*watcher(void *arg)
+{
+	t_philo	*philo;
+	long	time_now;
+
+	philo = (t_philo *)arg;
+	while (!g_flag_fin)
+	{
+		if (philo->flag_eat_fin)
+		{
+			printf("id=%d eat fin\n", philo->id);
+			break ;
+		}
+		time_now = get_time_in_ms();
+		if (time_now == ERROR)
+		{
+			print_error_message(GETTIMEOFDAY_FAILED);
+			return (NULL);
+		}
+		if ((time_now - philo->time_last_eat) >= philo->info->time_to_die)
+		{
+			print_status(philo, DIE);
+			pthread_mutex_lock(&g_die);
+			g_flag_fin = TRUE;
+			pthread_mutex_unlock(&g_die);
+			return (NULL);
+		}
+		usleep(200);
+	}
+	return (NULL);
 }
 
 int	create_threads(t_info *info, t_philo *philos)
@@ -303,7 +448,14 @@ int	create_threads(t_info *info, t_philo *philos)
 	i = 1;
 	while (i <= (info->num_of_philos))
 	{
-		if (pthread_create(&(philos[i].thread), NULL, &philo_life, &(philos[i])) != 0)
+		if (pthread_create(&(philos[i].thread), NULL, &philo_life, (void *)&(philos[i])) != 0)
+			return (ERROR);
+		i++;
+	}
+	i = 1;
+	while (i <= (info->num_of_philos))
+	{
+		if (pthread_create(&(philos[i].watcher), NULL, &watcher, (void *)&(philos[i])) != 0)
 			return (ERROR);
 		i++;
 	}
@@ -320,25 +472,31 @@ void	join_threads(t_info *info, t_philo *philos)
 		pthread_join(philos[i].thread, NULL);
 		i++;
 	}
-}
-
-void	print_philo(t_philo *philo, t_info *info)
-{
-	int	i = 0;
-
+	i = 1;
 	while (i <= (info->num_of_philos))
 	{
-		printf("1: %d\n", philo[i].id);
-		printf("2: %d\n", philo[i].count_eat);
-		// printf("3: %ld\n", philo[i].time_start);
-		printf("4: %ld\n", philo[i].time_last_eat);
-		// printf("5: %ld\n", philo[i].time_passed);
-		printf("6: %d\n", philo[i].right_fork);
-		printf("7: %d\n", philo[i].left_fork);
-		printf("8: %p\n", philo[i].info);
+		pthread_join(philos[i].watcher, NULL);
 		i++;
 	}
 }
+
+// void	print_philo(t_philo *philo, t_info *info)
+// {
+// 	int	i = 0;
+
+// 	while (i <= (info->num_of_philos))
+// 	{
+// 		printf("1: %d\n", philo[i].id);
+// 		printf("2: %d\n", philo[i].count_eat);
+// 		// printf("3: %ld\n", philo[i].time_start);
+// 		printf("4: %ld\n", philo[i].time_last_eat);
+// 		// printf("5: %ld\n", philo[i].time_passed);
+// 		printf("6: %d\n", philo[i].right_fork);
+// 		printf("7: %d\n", philo[i].left_fork);
+// 		printf("8: %p\n", philo[i].info);
+// 		i++;
+// 	}
+// }
 
 void	clean_mutex(t_info *info)
 {
@@ -359,19 +517,19 @@ int	main(int argc, char **argv)
 	t_philo	*philos;
 
 	if (check_arguments(argc, argv) == ERROR)
-		return (print_error_message("invalid argument"));
+		return (print_error_message(INVALID_ARGUMENT));
 	if (init_info(&info, argc, argv) == ERROR)
-		return (print_error_message("only one philosoher"));
+		return (print_error_message(ONLY_ONE_PHILO));
 	if (init_global_variables(&info) == ERROR)
-		return (print_error_message("system call fail"));
+		return (print_error_message(MALLOC_FAILED));
 	philos = init_philo(&info);
 	if (!philos)
-		return (print_error_message("system call fail\n"));
-	//print_philo(philos, &info);
+		return (print_error_message(MALLOC_OR_GETTIMEOFDAY_FAILED));
 	if (create_threads(&info, philos) == ERROR)
-		return (print_error_message("system call fail\n"));
+		return (print_error_message(PTHREAD_CREATE_FAILED));
 	join_threads(&info, philos);
-	clean_mutex(&info);
+	write(1, "finish", 6);
+	//clean_mutex(&info);
 	return (0);
 }
 
