@@ -24,6 +24,7 @@ int	eat_spaghetti(t_info *info, t_philo *philo)
 	tmp = get_time_in_ms();
 	if (tmp == ERROR)
 		return (ERROR);
+	philo->time_last_eat = tmp;
 	while (1)
 	{
 		time_now = get_time_in_ms();

@@ -12,7 +12,7 @@ void	*philo_life(void *arg)
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 1)
 		usleep(200);
-	while (!philo->flag_fin && !philo->flag_eat_fin)
+	while (!philo->flag_fin && !philo->flag_eat_fin && !g_flag_fin)
 	{
 		// printf("1: id=%d\n", philo->id);
 		if (philo->id == 1)
@@ -49,6 +49,8 @@ void	*philo_life(void *arg)
 		else
 			write(1, "$4\n", 3);
 		think_deeply(philo);
+		printf("id: %d, flag_fin: %d, flag_eat_fin: %d\n", philo->id, philo->flag_fin, philo->flag_eat_fin);
 	}
+	write(1, "5: thread finish\n", 17);
 	return (NULL);
 }

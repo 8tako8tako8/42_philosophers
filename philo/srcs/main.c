@@ -15,6 +15,7 @@ static void	clean_mutex(t_info *info)
 		pthread_mutex_destroy(&g_fork[i]);
 		i++;
 	}
+	// dieとprintも
 	free(g_fork);
 }
 
@@ -36,6 +37,6 @@ int	main(int argc, char **argv)
 		return (print_error_message(PTHREAD_CREATE_FAILED));
 	join_threads(&info, philos);
 	write(1, "finish", 6);
-	//clean_mutex(&info);
+	clean_mutex(&info);
 	return (0);
 }
