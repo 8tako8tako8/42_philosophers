@@ -9,7 +9,7 @@ int check_arguments(int argc, char **argv)
 	i = 1;
 	while (argv[i])
 	{
-		if (!is_number(argv[i]))
+		if (!is_positive_number(argv[i]))
 			return (ERROR);
 		if (!is_integer(1, argv[i]))
 			return (ERROR);
@@ -34,7 +34,7 @@ int	is_integer(int sign, char *number)
 	return (1);
 }
 
-int is_number(char *str)
+int is_positive_number(char *str)
 {
 	int	i;
 

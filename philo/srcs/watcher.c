@@ -8,11 +8,8 @@ void	*death_watcher(void *arg)
 	philo = (t_philo *)arg;
 	while (!g_flag_fin)
 	{
-		if (philo->flag_eat_fin)
-		{
-			printf("id=%d eat fin\n", philo->id);
-			break ;
-		}
+		// if (philo->flag_eat_fin)
+		// 	break ;
 		time_now = get_time_in_ms();
 		if (time_now == ERROR)
 		{

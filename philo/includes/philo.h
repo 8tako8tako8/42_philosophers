@@ -36,6 +36,7 @@ typedef struct s_info
 	int			time_to_eat;
 	int			time_to_sleep;
 	int			num_of_each_eating;
+	int			count_all_eat;
 }				t_info;
 
 typedef struct s_philo
@@ -77,6 +78,10 @@ void		take_forks(t_philo *philo);
 void		drop_forks(t_philo *philo);
 int			eat_spaghetti(t_info *info, t_philo *philo);
 
+/* check_count.c */
+int		does_satisfy_count_eat(t_info *info, t_philo *philo);
+void	check_count_eat(t_info *info, t_philo *philo);
+
 /* sleep_think.c */
 int			spend_sleeping(t_info *info, t_philo *philo);
 void		think_deeply(t_philo *philo);
@@ -87,7 +92,7 @@ void		*death_watcher(void *arg);
 /* utils.c */
 int 		check_arguments(int argc, char **argv);
 int			is_integer(int sign, char *number);
-int 		is_number(char *str);
+int 		is_positive_number(char *str);
 
 /* libft.c */
 void		ft_putstr_fd(char *s, int fd);
@@ -98,7 +103,9 @@ int			ft_atoi(const char *str);
 
 extern pthread_mutex_t	*g_fork;
 extern pthread_mutex_t	g_print;//いらないかも
+extern pthread_mutex_t	g_fin;
 extern pthread_mutex_t	g_die;
+extern pthread_mutex_t	g_eat;
 extern pthread_t		g_watcher;
 extern int				g_flag_fin;
 

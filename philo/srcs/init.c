@@ -12,6 +12,7 @@ int	init_info(t_info *info, int argc, char **argv)
 		info->num_of_each_eating = -1;
 	if (argc == 6)
 		info->num_of_each_eating = ft_atoi(argv[5]);
+	info->count_all_eat = 0;
 	return (SUCCESS);
 }
 
@@ -20,8 +21,10 @@ int	init_global_variables(t_info *info)
 	int		i;
 
 	g_flag_fin = FALSE;
-	pthread_mutex_init(&g_print, NULL);
+	pthread_mutex_init(&g_fin, NULL);
 	pthread_mutex_init(&g_die, NULL);
+	pthread_mutex_init(&g_eat, NULL);
+	pthread_mutex_init(&g_print, NULL);
 	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * (info->num_of_philos));
 	if (!g_fork)
 		return (ERROR);

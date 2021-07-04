@@ -4,6 +4,7 @@ CC			:=	gcc
 CFLAGS		:=	
 SRC_DIR		:=	./srcs
 SRCS		:=	$(SRC_DIR)/main.c \
+				$(SRC_DIR)/check_count.c \
 				$(SRC_DIR)/eat.c \
 				$(SRC_DIR)/get_time.c \
 				$(SRC_DIR)/init.c \

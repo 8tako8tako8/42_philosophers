@@ -12,7 +12,7 @@ void	print_status(t_philo *philo, int status)
 
 	pthread_mutex_lock(&g_print);
 	ms_time = get_time_in_ms();
-	if (philo->flag_eat_fin || philo->flag_fin || g_flag_fin)
+	if (philo->flag_fin || g_flag_fin)
 	{
 		pthread_mutex_unlock(&g_print);
 		return ;

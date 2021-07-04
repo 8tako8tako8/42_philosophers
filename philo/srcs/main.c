@@ -1,8 +1,10 @@
 #include "philo.h"
 
 pthread_mutex_t	*g_fork;
-pthread_mutex_t	g_print;//いらないかも
+pthread_mutex_t	g_fin;
 pthread_mutex_t	g_die;
+pthread_mutex_t	g_eat;
+pthread_mutex_t	g_print;//いらないかも
 int				g_flag_fin;
 
 static void	clean_mutex(t_info *info)
