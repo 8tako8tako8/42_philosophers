@@ -4,7 +4,7 @@ pthread_mutex_t	*g_fork;
 pthread_mutex_t	g_fin;
 pthread_mutex_t	g_die;
 pthread_mutex_t	g_eat;
-pthread_mutex_t	g_print;//いらないかも
+pthread_mutex_t	g_print;
 int				g_flag_fin;
 
 static void	clean_mutex(t_info *info)
@@ -17,8 +17,16 @@ static void	clean_mutex(t_info *info)
 		pthread_mutex_destroy(&g_fork[i]);
 		i++;
 	}
-	// dieとprintも
+	pthread_mutex_destroy(&g_fin);
+	pthread_mutex_destroy(&g_die);
+	pthread_mutex_destroy(&g_eat);
+	pthread_mutex_destroy(&g_print);
+}
+
+void	free_memory(t_philo *philos)
+{
 	free(g_fork);
+	free(philos);
 }
 
 int	main(int argc, char **argv)
@@ -38,7 +46,7 @@ int	main(int argc, char **argv)
 	if (create_threads(&info, philos) == ERROR)
 		return (print_error_message(PTHREAD_CREATE_FAILED));
 	join_threads(&info, philos);
-	write(1, "finish", 6);
 	clean_mutex(&info);
+	free_memory(philos);
 	return (0);
 }

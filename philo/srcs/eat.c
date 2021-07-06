@@ -19,6 +19,7 @@ int	eat_spaghetti(t_info *info, t_philo *philo)
 	long	time_now;
 	long	tmp;
 
+	pthread_mutex_lock(&(philo->die));
 	print_status(philo, EAT);
 	philo->count_eat++;
 	tmp = get_time_in_ms();
@@ -32,8 +33,9 @@ int	eat_spaghetti(t_info *info, t_philo *philo)
 			return (ERROR);
 		if ((time_now - tmp) >= info->time_to_eat)
 			break ;
-		usleep(100);
+		usleep(50);
 	}
 	philo->time_last_eat = time_now;
+	pthread_mutex_unlock(&(philo->die));
 	return (SUCCESS);
 }

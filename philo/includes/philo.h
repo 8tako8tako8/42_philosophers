@@ -50,6 +50,7 @@ typedef struct s_philo
 	int			left_fork;
 	pthread_t	thread;
 	pthread_t	watcher;
+	pthread_mutex_t	die;
 	t_info		*info;
 }				t_philo;
 

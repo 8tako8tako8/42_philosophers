@@ -1,6 +1,6 @@
 #include "philo.h"
 
-int check_arguments(int argc, char **argv)
+int	check_arguments(int argc, char **argv)
 {
 	int	i;
 
@@ -34,7 +34,7 @@ int	is_integer(int sign, char *number)
 	return (1);
 }
 
-int is_positive_number(char *str)
+int	is_positive_number(char *str)
 {
 	int	i;
 

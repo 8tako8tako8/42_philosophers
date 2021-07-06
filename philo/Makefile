@@ -1,7 +1,6 @@
 NAME		:=	philo
 CC			:=	gcc
-#CFLAGS		:=	-Wall -Wextra -Werror
-CFLAGS		:=	
+CFLAGS		:=	-Wall -Wextra -Werror
 SRC_DIR		:=	./srcs
 SRCS		:=	$(SRC_DIR)/main.c \
 				$(SRC_DIR)/check_count.c \
