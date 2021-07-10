@@ -18,6 +18,9 @@
 
 # define STDERR							2
 
+# define CONTINUE						0
+# define FINISH							1
+
 # define FORK							0
 # define EAT							1
 # define SLEEP							2
@@ -46,7 +49,6 @@ typedef struct s_philo
 	int				id;
 	int				count_eat;
 	int				flag_eat_fin;
-	int				flag_fin;
 	long			time_last_eat;
 	int				right_fork;
 	int				left_fork;
@@ -65,8 +67,8 @@ t_philo		*init_philo(t_info *info);
 long		get_time_in_ms(void);
 
 /* print.c */
+int			print_status_and_check_fin(t_philo *philo, int status);
 int			print_error_message(char *str);
-void		print_status(t_philo *philo, int status);
 
 /* thread.c */
 int			create_threads(t_info *info, t_philo *philos);
@@ -76,17 +78,16 @@ void		join_threads(t_info *info, t_philo *philos);
 void		*philo_life(void *arg);
 
 /* eat.c */
-void		take_forks(t_philo *philo);
+int			take_forks_and_check_fin(t_philo *philo);
 void		drop_forks(t_philo *philo);
 int			eat_spaghetti(t_info *info, t_philo *philo);
 
 /* check_count.c */
-int			does_satisfy_count_eat(t_info *info, t_philo *philo);
 void		check_count_eat(t_info *info, t_philo *philo);
 
 /* sleep_think.c */
 int			spend_sleeping(t_info *info, t_philo *philo);
-void		think_deeply(t_philo *philo);
+int			think_deeply(t_philo *philo);
 
 /* watcher.c */
 void		*death_watcher(void *arg);

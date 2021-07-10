@@ -5,7 +5,8 @@ int	spend_sleeping(t_info *info, t_philo *philo)
 	long	time_now;
 	long	tmp;
 
-	print_status(philo, SLEEP);
+	if (print_status_and_check_fin(philo, SLEEP) == ERROR)
+		return (ERROR);
 	tmp = get_time_in_ms();
 	if (tmp == ERROR)
 		return (ERROR);
@@ -21,7 +22,9 @@ int	spend_sleeping(t_info *info, t_philo *philo)
 	return (SUCCESS);
 }
 
-void	think_deeply(t_philo *philo)
+int	think_deeply(t_philo *philo)
 {
-	print_status(philo, THINK);
+	if (print_status_and_check_fin(philo, THINK) == ERROR)
+		return (ERROR);
+	return (SUCCESS);
 }

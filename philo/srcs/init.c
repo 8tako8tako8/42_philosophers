@@ -46,7 +46,6 @@ static int	init_philo_contents(int i, t_info *info, t_philo *philos)
 		return (ERROR);
 	philos[i].id = i + 1;
 	philos[i].count_eat = 0;
-	philos[i].flag_fin = FALSE;
 	philos[i].time_last_eat = time_start;
 	philos[i].right_fork = i;
 	if (i == info->num_of_philos - 1)

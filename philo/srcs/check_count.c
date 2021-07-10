@@ -1,6 +1,6 @@
 #include "philo.h"
 
-int	does_satisfy_count_eat(t_info *info, t_philo *philo)
+static int	does_satisfy_count_eat(t_info *info, t_philo *philo)
 {
 	return (philo->count_eat == info->num_of_each_eating);
 }

@@ -21,7 +21,7 @@ static void	clean_mutex(t_info *info)
 	pthread_mutex_destroy(&g_print);
 }
 
-void	free_memory(t_philo *philos)
+static void	free_memory(t_philo *philos)
 {
 	if (g_fork)
 		free(g_fork);
