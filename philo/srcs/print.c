@@ -2,7 +2,7 @@
 
 int	print_error_message(char *str)
 {
-	ft_putendl_fd(str, STDERR_FILENO);
+	ft_putendl_fd(str, STDERR);
 	return (STATUS_ERROR);
 }
 

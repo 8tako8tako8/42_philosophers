@@ -10,6 +10,8 @@ void	*philo_life(void *arg)
 	while (!philo->flag_fin && !g_flag_fin)
 	{
 		take_forks(philo);
+		if (g_flag_fin)
+			break ;
 		if (eat_spaghetti(philo->info, philo) == ERROR)
 		{
 			print_error_message(GETTIMEOFDAY_FAILED);

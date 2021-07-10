@@ -3,7 +3,7 @@
 int	init_info(t_info *info, int argc, char **argv)
 {
 	info->num_of_philos = ft_atoi(argv[1]);
-	if (info->num_of_philos == 1)
+	if (info->num_of_philos > 200)
 		return (ERROR);
 	info->time_to_die = ft_atoi(argv[2]);
 	info->time_to_eat = ft_atoi(argv[3]);
@@ -22,7 +22,6 @@ int	init_global_variables(t_info *info)
 
 	g_flag_fin = FALSE;
 	pthread_mutex_init(&g_fin, NULL);
-	pthread_mutex_init(&g_die, NULL);
 	pthread_mutex_init(&g_eat, NULL);
 	pthread_mutex_init(&g_print, NULL);
 	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
