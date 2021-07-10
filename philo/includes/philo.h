@@ -49,7 +49,7 @@ typedef struct s_philo
 	int				id;
 	int				count_eat;
 	int				flag_eat_fin;
-	long			time_last_eat;
+	long long		time_last_eat;
 	int				right_fork;
 	int				left_fork;
 	pthread_t		thread;
@@ -64,7 +64,7 @@ int			init_global_variables(t_info *info);
 t_philo		*init_philo(t_info *info);
 
 /* get_time.c */
-long		get_time_in_ms(void);
+long long	get_time_in_ms(void);
 
 /* print.c */
 int			print_status_and_check_fin(t_philo *philo, int status);

@@ -1,6 +1,6 @@
 #include "philo.h"
 
-long	get_time_in_ms(void)
+long long	get_time_in_ms(void)
 {
 	struct timeval	tv;
 	time_t			time_ms;

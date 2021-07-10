@@ -35,8 +35,8 @@ void	switch_flag_to_fin(void)
 
 void	*death_watcher(void *arg)
 {
-	t_philo	*philo;
-	long	time_now;
+	t_philo		*philo;
+	long long	time_now;
 
 	philo = (t_philo *)arg;
 	while (!g_flag_fin)

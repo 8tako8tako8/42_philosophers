@@ -27,9 +27,9 @@ void	drop_forks(t_philo *philo)
 	pthread_mutex_unlock(&g_fork[philo->left_fork]);
 }
 
-static int	spend_eating(t_info *info, t_philo *philo, long time_last_eat)
+static int	spend_eating(t_info *info, t_philo *philo, long long time_last_eat)
 {
-	long	time_now;
+	long long	time_now;
 
 	while (1)
 	{
@@ -48,7 +48,7 @@ static int	spend_eating(t_info *info, t_philo *philo, long time_last_eat)
 
 int	eat_spaghetti(t_info *info, t_philo *philo)
 {
-	long	tmp;
+	long long	tmp;
 
 	pthread_mutex_lock(&(philo->die));
 	philo->count_eat++;

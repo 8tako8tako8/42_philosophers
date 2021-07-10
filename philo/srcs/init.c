@@ -39,7 +39,7 @@ int	init_global_variables(t_info *info)
 
 static int	init_philo_contents(int i, t_info *info, t_philo *philos)
 {
-	long	time_start;
+	long long	time_start;
 
 	time_start = get_time_in_ms();
 	if (time_start == ERROR)

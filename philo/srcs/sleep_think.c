@@ -2,8 +2,8 @@
 
 int	spend_sleeping(t_info *info, t_philo *philo)
 {
-	long	time_now;
-	long	tmp;
+	long long	time_now;
+	long long	tmp;
 
 	if (print_status_and_check_fin(philo, SLEEP) == ERROR)
 		return (ERROR);
