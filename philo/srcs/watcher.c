@@ -10,12 +10,6 @@ static void	unlock_all_forks(t_info *info)
 		pthread_mutex_unlock(&g_fork[i]);
 		i++;
 	}
-	i = 0;
-	while (i < (info->num_of_philos))
-	{
-		pthread_mutex_unlock(&g_fork[i]);
-		i++;
-	}
 }
 
 static void	*end_abnormally(t_info *info)
