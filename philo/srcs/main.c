@@ -4,6 +4,7 @@ pthread_mutex_t	*g_fork;
 pthread_mutex_t	g_fin;
 pthread_mutex_t	g_eat;
 pthread_mutex_t	g_print;
+pthread_mutex_t	g_first_last;
 int				g_flag_fin;
 
 static void	clean_mutex(t_info *info)
@@ -19,6 +20,7 @@ static void	clean_mutex(t_info *info)
 	pthread_mutex_destroy(&g_fin);
 	pthread_mutex_destroy(&g_eat);
 	pthread_mutex_destroy(&g_print);
+	pthread_mutex_destroy(&g_first_last);
 }
 
 static void	free_memory(t_philo *philos)
@@ -44,12 +46,13 @@ int	main(int argc, char **argv)
 	if (!philos)
 	{
 		free(g_fork);
-		return (print_error_message(MALLOC_OR_GETTIMEOFDAY_FAILED));
+		return (STATUS_ERROR);
 	}
-	if (create_threads(&info, philos) == ERROR)
+	if (init_time_start(&info, philos) == ERROR
+		|| create_threads(&info, philos) == ERROR)
 	{
 		free_memory(philos);
-		return (print_error_message(PTHREAD_CREATE_FAILED));
+		return (STATUS_ERROR);
 	}
 	join_threads(&info, philos);
 	clean_mutex(&info);

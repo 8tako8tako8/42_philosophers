@@ -17,7 +17,7 @@ int	spend_sleeping(t_info *info, t_philo *philo)
 			return (ERROR);
 		if ((time_now - tmp) >= info->time_to_sleep)
 			break ;
-		usleep(50);
+		usleep(1000);
 	}
 	return (SUCCESS);
 }

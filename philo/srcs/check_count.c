@@ -11,8 +11,11 @@ void	check_count_eat(t_info *info, t_philo *philo)
 	{
 		pthread_mutex_lock(&g_eat);
 		info->count_all_eat++;
+		if (info->count_all_eat == info->num_of_philos)
+		{
+			switch_flag_to_fin();
+			unlock_all_forks(info);
+		}
 		pthread_mutex_unlock(&g_eat);
 	}
-	if (info->count_all_eat == info->num_of_philos)
-		switch_flag_to_fin();
 }

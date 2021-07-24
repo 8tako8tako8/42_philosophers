@@ -13,6 +13,8 @@
 # define SUCCESS						1
 # define ERROR							-1
 
+# define FORK_ERROR						-2
+
 # define TRUE							1
 # define FALSE							0
 
@@ -33,6 +35,7 @@
 # define GETTIMEOFDAY_FAILED			"gettimeofday failed"
 # define MALLOC_OR_GETTIMEOFDAY_FAILED	"malloc or gettimeofday failed"
 # define PTHREAD_CREATE_FAILED			"pthread create failed"
+# define NOT_TAKE_FORK					"not take fork"
 
 typedef struct s_info
 {
@@ -62,6 +65,7 @@ typedef struct s_philo
 int			init_info(t_info *info, int argc, char **argv);
 int			init_global_variables(t_info *info);
 t_philo		*init_philo(t_info *info);
+int			init_time_start(t_info *info, t_philo *philos);
 
 /* get_time.c */
 long long	get_time_in_ms(void);
@@ -77,9 +81,11 @@ void		join_threads(t_info *info, t_philo *philos);
 /* philo_life.c */
 void		*philo_life(void *arg);
 
-/* eat.c */
-int			take_forks_and_check_fin(t_philo *philo);
+/* fork.c */
+int			take_forks_and_check_fin(t_info *info, t_philo *philo);
 void		drop_forks(t_philo *philo);
+
+/* eat.c */
 int			eat_spaghetti(t_info *info, t_philo *philo);
 
 /* check_count.c */
@@ -92,6 +98,7 @@ int			think_deeply(t_philo *philo);
 /* watcher.c */
 void		*death_watcher(void *arg);
 void		switch_flag_to_fin(void);
+void		unlock_all_forks(t_info *info);
 
 /* utils.c */
 int			check_arguments(int argc, char **argv);
@@ -109,6 +116,7 @@ extern pthread_mutex_t	*g_fork;
 extern pthread_mutex_t	g_print;
 extern pthread_mutex_t	g_fin;
 extern pthread_mutex_t	g_eat;
+extern pthread_mutex_t	g_first_last;
 extern int				g_flag_fin;
 
 #endif

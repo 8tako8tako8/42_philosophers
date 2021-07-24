@@ -22,11 +22,14 @@ static void	print_status(int status, long long ms_time, t_philo *philo)
 
 static int	check_fin(void)
 {
+	pthread_mutex_lock(&g_fin);
 	if (g_flag_fin)
 	{
 		pthread_mutex_unlock(&g_print);
+		pthread_mutex_unlock(&g_fin);
 		return (FINISH);
 	}
+	pthread_mutex_unlock(&g_fin);
 	return (CONTINUE);
 }
 

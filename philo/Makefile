@@ -1,10 +1,11 @@
 NAME		:=	philo
 CC			:=	gcc
-CFLAGS		:=	-Wall -Wextra -Werror
+CFLAGS		:=	-Wall -Wextra -Werror -fsanitize=thread
 SRC_DIR		:=	./srcs
 SRCS		:=	$(SRC_DIR)/main.c \
 				$(SRC_DIR)/check_count.c \
 				$(SRC_DIR)/eat.c \
+				$(SRC_DIR)/fork.c \
 				$(SRC_DIR)/get_time.c \
 				$(SRC_DIR)/init.c \
 				$(SRC_DIR)/libft.c \

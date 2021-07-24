@@ -24,6 +24,7 @@ int	init_global_variables(t_info *info)
 	pthread_mutex_init(&g_fin, NULL);
 	pthread_mutex_init(&g_eat, NULL);
 	pthread_mutex_init(&g_print, NULL);
+	pthread_mutex_init(&g_first_last, NULL);
 	g_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
 			* (info->num_of_philos));
 	if (!g_fork)
@@ -37,16 +38,10 @@ int	init_global_variables(t_info *info)
 	return (SUCCESS);
 }
 
-static int	init_philo_contents(int i, t_info *info, t_philo *philos)
+static void	init_philo_contents(int i, t_info *info, t_philo *philos)
 {
-	long long	time_start;
-
-	time_start = get_time_in_ms();
-	if (time_start == ERROR)
-		return (ERROR);
 	philos[i].id = i + 1;
 	philos[i].count_eat = 0;
-	philos[i].time_last_eat = time_start;
 	philos[i].right_fork = i;
 	if (i == info->num_of_philos - 1)
 		philos[i].left_fork = 0;
@@ -54,23 +49,44 @@ static int	init_philo_contents(int i, t_info *info, t_philo *philos)
 		philos[i].left_fork = i + 1;
 	pthread_mutex_init(&(philos[i].die), NULL);
 	philos[i].info = info;
-	return (SUCCESS);
 }
 
 t_philo	*init_philo(t_info *info)
 {
-	t_philo	*philos;
-	int		i;
+	t_philo		*philos;
+	int			i;
 
 	philos = (t_philo *)malloc(sizeof(t_philo) * (info->num_of_philos));
 	if (!philos)
+	{
+		print_error_message(MALLOC_FAILED);
 		return (NULL);
+	}
 	i = 0;
 	while (i < (info->num_of_philos))
 	{
-		if (init_philo_contents(i, info, philos) == ERROR)
-			return (NULL);
+		init_philo_contents(i, info, philos);
 		i++;
 	}
 	return (philos);
+}
+
+int	init_time_start(t_info *info, t_philo *philos)
+{
+	long long	time_start;
+	int			i;
+
+	time_start = get_time_in_ms();
+	if (time_start == ERROR)
+	{
+		print_error_message(GETTIMEOFDAY_FAILED);
+		return (ERROR);
+	}
+	i = 0;
+	while (i < (info->num_of_philos))
+	{
+		philos[i].time_last_eat = time_start;
+		i++;
+	}
+	return (SUCCESS);
 }
